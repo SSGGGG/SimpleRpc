@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="CompilerConfiguration">
+    <annotationProcessing>
+      <profile default="true" name="Default" enabled="true" />
+      <profile name="Maven default annotation processors profile" enabled="true">
+        <sourceOutputDir name="target/generated-sources/annotations" />
+        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
+        <outputRelativeToContentRoot value="true" />
+        <module name="rpc-common02" />
+        <module name="rpc-common03" />
+        <module name="rpc-common" />
+        <module name="rpc-server03" />
+        <module name="rpc-server02" />
+        <module name="ServerTest" />
+        <module name="rpc-api03" />
+        <module name="rpc-api02" />
+        <module name="ClientTest02" />
+        <module name="rpc-server" />
+        <module name="rpc-core03" />
+        <module name="ClientTest" />
+        <module name="rpc-core02" />
+        <module name="ServerTest02" />
+        <module name="WebSocketDemo" />
+        <module name="rpc-api" />
+        <module name="rpc-core" />
+      </profile>
+    </annotationProcessing>
+    <bytecodeTargetLevel>
+      <module name="ApiTest" target="8" />
+      <module name="ClientTest (1)" target="8" />
+      <module name="common" target="8" />
+      <module name="rpc-api (1)" target="8" />
+      <module name="rpc-common (1)" target="8" />
+      <module name="rpc-core (1)" target="8" />
+      <module name="rpc-server (1)" target="8" />
+      <module name="ServerTest (1)" target="8" />
+    </bytecodeTargetLevel>
+  </component>
+  <component name="JavacSettings">
+    <option name="ADDITIONAL_OPTIONS_OVERRIDE">
+      <module name="WebSocketDemo" options="-parameters" />
+    </option>
+  </component>
+</project>
