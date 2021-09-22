@@ -16,6 +16,8 @@
         <module>rpc-common03</module>
         <module>rpc-core03</module>
         <module>rpc-server03</module>
+        <module>ClientTest03</module>
+        <module>ServerTest03</module>
     </modules>
 
     <properties>

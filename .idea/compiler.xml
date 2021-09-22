@@ -13,8 +13,10 @@
         <module name="rpc-server03" />
         <module name="rpc-server02" />
         <module name="ServerTest" />
+        <module name="ClientTest03" />
         <module name="rpc-api03" />
         <module name="rpc-api02" />
+        <module name="ServerTest03" />
         <module name="ClientTest02" />
         <module name="rpc-server" />
         <module name="rpc-core03" />

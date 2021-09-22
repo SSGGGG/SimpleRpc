@@ -9,5 +9,5 @@ import com.excelman.rpc.entity.RpcRequest;
  */
 public interface RpcClient {
 
-    Object sendRequest(RpcRequest rpcRequest, String host, int port);
+    Object sendRequest(RpcRequest rpcRequest);
 }

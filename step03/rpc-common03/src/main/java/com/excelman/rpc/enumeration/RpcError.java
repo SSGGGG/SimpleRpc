@@ -23,7 +23,12 @@ public enum RpcError {
     SERIALIZER_NOT_FOUND("找不到序列化器"),
     RESPONSE_NOT_MATCH("响应与请求号不匹配"),
     FAILED_TO_CONNECT_TO_SERVICE_REGISTRY("连接注册中心失败"),
-    REGISTER_SERVICE_FAILED("注册服务失败");
+    REGISTER_SERVICE_FAILED("注册服务失败"),
+
+    JSON_SERIALIZE_ERROR("JSON序列化过程异常"),
+    JSON_DESERIALIZE_ERROR("JSON解序列化过程异常"),
+    KRYO_SERIALIZE_ERROR("KRYO序列化过程异常"),
+    KRYO_DESERIALIZE_ERROR("KRYO解序列化过程异常");
 
     private final String message;
 }

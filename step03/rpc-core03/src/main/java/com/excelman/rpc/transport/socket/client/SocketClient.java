@@ -19,15 +19,20 @@ public class SocketClient implements RpcClient {
 
     private static final Logger logger = LoggerFactory.getLogger(SocketClient.class);
 
+    private String host;
+    private int port;
+
+    public SocketClient(String host, int port){
+        this.host = host;
+        this.port = port;
+    }
+
     /**
      * 通过Socket编程，向指定host + port的服务端发送rpcRequest请求，并得到返回结果
      * @param rpcRequest
-     * @param host
-     * @param port
-     * @return
      */
     @Override
-    public Object sendRequest(RpcRequest rpcRequest, String host, int port){
+    public Object sendRequest(RpcRequest rpcRequest){
         try(Socket socket = new Socket(host, port)){
             ObjectOutputStream objectOutputStream = new ObjectOutputStream(socket.getOutputStream());
             ObjectInputStream objectInputStream = new ObjectInputStream(socket.getInputStream());
