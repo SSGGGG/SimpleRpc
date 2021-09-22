@@ -3,6 +3,7 @@ package com.excelman.rpc.transport.netty.server;
 import com.excelman.rpc.coder.CommonDecoder;
 import com.excelman.rpc.coder.CommonEncoder;
 import com.excelman.rpc.serializer.JsonSerializer;
+import com.excelman.rpc.serializer.KryoSerializer;
 import com.excelman.rpc.transport.RpcServer;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.*;
@@ -57,7 +58,7 @@ public class NettyServer implements RpcServer {
                             ChannelPipeline pipeline = socketChannel.pipeline();
                             // IdleStateHandler属于Inbound类型
                             pipeline.addLast(new IdleStateHandler(30, 0, 0, TimeUnit.SECONDS))
-                                    .addLast(new CommonEncoder(new JsonSerializer())) // out类型
+                                    .addLast(new CommonEncoder(new KryoSerializer())) // out类型
                                     .addLast(new CommonDecoder())   // In类型
                                     .addLast(new NettyServerHandler()); // In类型
                         }

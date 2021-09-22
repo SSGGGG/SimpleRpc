@@ -25,9 +25,8 @@ public class KryoSerializer implements CommonSerializer{
     private final Logger logger = LoggerFactory.getLogger(KryoSerializer.class);
 
     /**
-     * todo 为什么设置threadLocal呢？？
-     * get()??
-     * remove()??
+     * Kryo官方推荐，每个线程持有一个kryo实例，因此使用ThreadLocal
+     * ( 使用get()方法获取，remove()方法删除 )
      */
     private static final ThreadLocal<Kryo> kryoThreadLocal = ThreadLocal.withInitial(() -> {
         Kryo kryo = new Kryo();
@@ -38,6 +37,11 @@ public class KryoSerializer implements CommonSerializer{
         return kryo;
     });
 
+    /**
+     * 序列化过程：创建Output对象---》调用writeObject()方法将对象写入到output中---》调用output.toBytes获取字节数组
+     * @param obj
+     * @return
+     */
     @Override
     public byte[] serialize(Object obj) {
         try(ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
@@ -52,6 +56,12 @@ public class KryoSerializer implements CommonSerializer{
         }
     }
 
+    /**
+     * 反序列化过程：创建Input对象---》调用readObject读取对象，赋值给object---》返回object即反序列化后的对象
+     * @param bytes
+     * @param clazz
+     * @return
+     */
     @Override
     public Object deserialize(byte[] bytes, Class<?> clazz) {
         try(ByteArrayInputStream inputStream = new ByteArrayInputStream(bytes);

@@ -7,6 +7,7 @@ import com.excelman.rpc.entity.RpcResponse;
 import com.excelman.rpc.enumeration.RpcError;
 import com.excelman.rpc.exception.RpcException;
 import com.excelman.rpc.serializer.JsonSerializer;
+import com.excelman.rpc.serializer.KryoSerializer;
 import com.excelman.rpc.transport.RpcClient;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.*;
@@ -51,7 +52,7 @@ public class NettyClient implements RpcClient {
                         // CommonDecoder是Inbound类型
                         pipeline.addLast(new CommonDecoder());
                         // CommonEncoder是Outbound类型
-                        pipeline.addLast(new CommonEncoder(new JsonSerializer()));
+                        pipeline.addLast(new CommonEncoder(new KryoSerializer()));
                         // 自定义的handler是Inbound类型
                         pipeline.addLast(new NettyClientHandler());
                     }

@@ -7,18 +7,17 @@ package com.excelman.rpc.serializer;
  */
 public interface CommonSerializer {
 
- /*   Integer KRYO_SERIALIZER = 0;
-    Integer JSON_SERIALIZER = 1;
-    Integer HESSIAN_SERIALIZER = 2;
-    Integer PROTOBUF_SERIALIZER = 3;
-
-    Integer DEFAULT_SERIALIZER = KRYO_SERIALIZER;*/
+    int KRYO_SERIALIZER = 0;
+    int JSON_SERIALIZER = 1;
+    int HESSIAN_SERIALIZER = 2;
+    int PROTOBUF_SERIALIZER = 3;
+    int DEFAULT_SERIALIZER = KRYO_SERIALIZER;
 
     static CommonSerializer getByCode(int code){
         switch (code){
-            case 0:
+            case KRYO_SERIALIZER:
                 return new KryoSerializer();
-            case 1:
+            case JSON_SERIALIZER:
                 return new JsonSerializer();
             default:
                 return new KryoSerializer();
