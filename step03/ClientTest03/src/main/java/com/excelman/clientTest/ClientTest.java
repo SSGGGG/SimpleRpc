@@ -14,7 +14,7 @@ import com.excelman.rpc.transport.netty.client.NettyClient;
 public class ClientTest {
 
     public static void main(String[] args) {
-        // 1. 创建客户端，以及通过代理获取HelloService
+        // 1. 创建客户端，以及通过代理获取HelloService，由代理对象invoke()调用client的sendRequest方法
         RpcClient client = new NettyClient("127.0.0.1", 9500);
         RpcClientProxy rpcClientProxy = new RpcClientProxy(client);
         HelloService proxy = rpcClientProxy.getProxy(HelloService.class);

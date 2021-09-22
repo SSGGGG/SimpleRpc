@@ -18,6 +18,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
+ * Inbound按照注册的先后顺序执行，Outbound按照注册的先后顺序逆序执行
+ * Inbound由netty内部调用，Outbound由业务逻辑主动调用
+ * 其中，Inbound用于处理request，outbound用于处理response
+ *
  * @author Excelman
  * @date 2021/9/22 上午10:00
  * @description netty实现的客户端
@@ -30,6 +34,9 @@ public class NettyClient implements RpcClient {
 
     /**
      * 静态初始化netty，在sendRequest方法中发送请求的时候再启动
+     * 其中handler的执行顺序
+     *      接受请求时：Decoder----NettyClientHandler
+     *      返回结果时：Encoder
      */
     static {
         group = new NioEventLoopGroup();
@@ -41,9 +48,12 @@ public class NettyClient implements RpcClient {
                     @Override
                     protected void initChannel(SocketChannel socketChannel) throws Exception {
                         ChannelPipeline pipeline = socketChannel.pipeline();
+                        // CommonDecoder是Inbound类型
                         pipeline.addLast(new CommonDecoder());
+                        // CommonEncoder是Outbound类型
                         pipeline.addLast(new CommonEncoder(new JsonSerializer()));
-                        pipeline.addLast(new NettyClientHandler()); // 责任链的尾部
+                        // 自定义的handler是Inbound类型
+                        pipeline.addLast(new NettyClientHandler());
                     }
                 });
     }
@@ -76,8 +86,8 @@ public class NettyClient implements RpcClient {
                         logger.error("客户端发送消息失败:", future1.cause());
                     }
                 });
-                channel.closeFuture().sync();
-                AttributeKey<RpcResponse> key = AttributeKey.valueOf("rpcResponse");
+                channel.closeFuture().sync(); // 这里阻塞等待channel关闭，再执行后续操作（因此NettyClientHandler先将rpcResponse方法哦channel.attr中）
+                AttributeKey<RpcResponse> key = AttributeKey.valueOf("RpcResponse");
                 RpcResponse rpcResponse = channel.attr(key).get();
                 return rpcResponse.getData();
             }

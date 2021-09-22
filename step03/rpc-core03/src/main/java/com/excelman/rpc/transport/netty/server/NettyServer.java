@@ -18,6 +18,10 @@ import org.slf4j.LoggerFactory;
 import java.util.concurrent.TimeUnit;
 
 /**
+ * Inbound按照注册的先后顺序执行，Outbound按照注册的先后顺序逆序执行
+ * Inbound由netty内部调用，outbound由业务逻辑主动调用
+ * 其中，Inbound用于处理request，outbound用于处理response
+ *
  * @author Excelman
  * @date 2021/9/22 上午10:00
  * @description netty实现的服务端
@@ -26,6 +30,11 @@ public class NettyServer implements RpcServer {
 
     private static final Logger logger = LoggerFactory.getLogger(NettyServer.class);
 
+    /**
+     * handler的执行顺序
+     *      接受请求时：IdleState----Decoder----NettyServerHandler
+     *      返回结果时：Encoder
+     */
     @Override
     public void start(int port) {
         // parentGroup，负责处理TCP/IP连接
@@ -41,15 +50,16 @@ public class NettyServer implements RpcServer {
                     .option(ChannelOption.SO_BACKLOG, 256)
                     .option(ChannelOption.SO_KEEPALIVE, true)
                     .childOption(ChannelOption.TCP_NODELAY, true)
-                    // 设置其它的handler
+                    // 设置其它的handler，其中每一个handler都是有一个线程去执行
                     .childHandler(new ChannelInitializer<SocketChannel>() {
                         @Override
                         protected void initChannel(SocketChannel socketChannel) throws Exception {
                             ChannelPipeline pipeline = socketChannel.pipeline();
+                            // IdleStateHandler属于Inbound类型
                             pipeline.addLast(new IdleStateHandler(30, 0, 0, TimeUnit.SECONDS))
-                                    .addLast(new CommonEncoder(new JsonSerializer()))
-                                    .addLast(new CommonDecoder())
-                                    .addLast(new NettyServerHandler()); // 处于责任链的尾部
+                                    .addLast(new CommonEncoder(new JsonSerializer())) // out类型
+                                    .addLast(new CommonDecoder())   // In类型
+                                    .addLast(new NettyServerHandler()); // In类型
                         }
                     });
             // 绑定监听端口，调用sync同步阻塞方法等待绑定执行结束
@@ -62,6 +72,5 @@ public class NettyServer implements RpcServer {
             bossGroup.shutdownGracefully();
             workerGroup.shutdownGracefully();
         }
-
     }
 }

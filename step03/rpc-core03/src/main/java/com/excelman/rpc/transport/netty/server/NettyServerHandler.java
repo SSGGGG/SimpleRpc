@@ -16,7 +16,7 @@ import org.slf4j.LoggerFactory;
 /**
  * @author Excelman
  * @date 2021/9/22 上午11:24
- * @description 该处理器负责接受RpcRequest，执行远程调用的方法，并返回结果
+ * @description 该处理器负责接收RpcRequest，执行远程调用的方法，并返回结果
  */
 public class NettyServerHandler extends SimpleChannelInboundHandler<RpcRequest> {
 

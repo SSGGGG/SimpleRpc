@@ -49,7 +49,7 @@ public class RpcClientProxy implements InvocationHandler {
         rpcRequest.setParamTypes(method.getParameterTypes());
         // 发送rpcRequest，接收rpcResponse
         RpcResponse response = null;
-        if(rpcClient instanceof SocketClient){
+        if(rpcClient instanceof SocketClient){  
             // 传回的是一个RpcResponse
             response = (RpcResponse) rpcClient.sendRequest(rpcRequest);
         }else if(rpcClient instanceof NettyClient){
