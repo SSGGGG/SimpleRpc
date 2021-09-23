@@ -2,12 +2,14 @@ package com.excelman.rpc.transport.netty.server;
 
 import com.excelman.rpc.coder.CommonDecoder;
 import com.excelman.rpc.coder.CommonEncoder;
+import com.excelman.rpc.hook.ShutdownHook;
 import com.excelman.rpc.provider.DefaultServiceProvider;
 import com.excelman.rpc.provider.ServiceProvider;
 import com.excelman.rpc.registry.NacosServiceRegistry;
 import com.excelman.rpc.registry.ServiceRegistry;
 import com.excelman.rpc.serializer.KryoSerializer;
 import com.excelman.rpc.transport.RpcServer;
+import com.excelman.rpc.utils.NacosUtils;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
@@ -38,13 +40,11 @@ public class NettyServer implements RpcServer {
 
     private final String host;
     private final int port;
-    private ServiceRegistry serviceRegistry;
     private ServiceProvider serviceProvider;
 
     public NettyServer(String host, int port){
         this.host = host;
         this.port = port;
-        serviceRegistry = new NacosServiceRegistry();
         serviceProvider = new DefaultServiceProvider();
     }
 
@@ -82,6 +82,10 @@ public class NettyServer implements RpcServer {
                     });
             // 绑定监听端口，调用sync同步阻塞方法等待绑定执行结束
             ChannelFuture future = serverBootstrap.bind(this.port).sync();
+
+            // 新增，添加钩子
+            ShutdownHook.getShutdownHook().clearAllNacosService();
+
             // 成功绑定到端口之后,给channel增加一个 管道关闭的监听器并同步阻塞,直到channel关闭,线程才会往下执行,结束进程
             future.channel().closeFuture().sync();
         } catch (InterruptedException e) {
@@ -105,6 +109,7 @@ public class NettyServer implements RpcServer {
         // 将服务保存在本地map中
         serviceProvider.registerProvider(service);
         // 将接口服务及其地址保存在nacos中
-        serviceRegistry.register(serviceClass.getCanonicalName(), new InetSocketAddress(host, port));
+        NacosUtils.register(serviceClass.getCanonicalName(), host, port);
+//        serviceRegistry.register(serviceClass.getCanonicalName(), new InetSocketAddress(host, port));
     }
 }

@@ -6,6 +6,8 @@ import com.alibaba.nacos.api.naming.NamingService;
 import com.alibaba.nacos.api.naming.pojo.Instance;
 import com.excelman.rpc.enumeration.RpcError;
 import com.excelman.rpc.exception.RpcException;
+import com.excelman.rpc.loadbalancer.LoadBalancer;
+import com.excelman.rpc.loadbalancer.RandomLoadBalancer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -15,7 +17,7 @@ import java.util.List;
 /**
  * @author Excelman
  * @date 2021/9/23 上午9:38
- * @description Nacos服务注册中心
+ * @description Nacos服务注册与发现中心
  */
 public class NacosServiceRegistry implements ServiceRegistry{
 
@@ -32,6 +34,20 @@ public class NacosServiceRegistry implements ServiceRegistry{
         }
     }
 
+    private LoadBalancer loadBalancer;
+
+    public NacosServiceRegistry() {
+        this(null);
+    }
+
+    public NacosServiceRegistry(LoadBalancer loadBalancer) {
+        if(null == loadBalancer){
+            this.loadBalancer = new RandomLoadBalancer();
+        }else{
+            this.loadBalancer = loadBalancer;
+        }
+    }
+
     @Override
     public void register(String serviceName, InetSocketAddress socketAddress) {
         try {
@@ -45,9 +61,9 @@ public class NacosServiceRegistry implements ServiceRegistry{
     @Override
     public InetSocketAddress lookupService(String serviceName) {
         try {
-            /*这里可以引入负载均衡策略获取实例对象*/
             List<Instance> allInstances = namingService.getAllInstances(serviceName);
-            Instance instance = allInstances.get(0);
+            /* 这里可以引入负载均衡策略获取实例对象 */
+            Instance instance = loadBalancer.select(allInstances);
             return new InetSocketAddress(instance.getIp(), instance.getPort());
         } catch (NacosException e) {
             logger.error("发现服务{}过程中发生异常:{}",e);

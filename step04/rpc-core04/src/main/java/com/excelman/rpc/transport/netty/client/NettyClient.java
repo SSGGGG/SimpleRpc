@@ -4,6 +4,8 @@ import com.excelman.rpc.coder.CommonDecoder;
 import com.excelman.rpc.coder.CommonEncoder;
 import com.excelman.rpc.entity.RpcRequest;
 import com.excelman.rpc.entity.RpcResponse;
+import com.excelman.rpc.loadbalancer.LoadBalancer;
+import com.excelman.rpc.loadbalancer.RandomLoadBalancer;
 import com.excelman.rpc.provider.DefaultServiceProvider;
 import com.excelman.rpc.provider.ServiceProvider;
 import com.excelman.rpc.registry.NacosServiceRegistry;
@@ -46,8 +48,6 @@ public class NettyClient implements RpcClient {
      * 静态创建ServiceRegistry对象
      */
     static {
-        serviceRegistry = new NacosServiceRegistry();
-
         group = new NioEventLoopGroup();
         bootstrap = new Bootstrap();
         bootstrap.group(group)
@@ -65,6 +65,17 @@ public class NettyClient implements RpcClient {
                         pipeline.addLast(new NettyClientHandler());
                     }
                 });
+    }
+
+    public NettyClient(){
+        this(null);
+    }
+
+    public NettyClient(LoadBalancer loadBalancer){
+        if(null == loadBalancer){
+            loadBalancer = new RandomLoadBalancer();
+        }
+        serviceRegistry = new NacosServiceRegistry(loadBalancer);
     }
 
     /**

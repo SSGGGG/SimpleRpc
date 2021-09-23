@@ -16,7 +16,7 @@ public class ServerTest {
         // 1. create NettyServer ( determine the host and port )
         RpcServer rpcServer = new NettyServer("127.0.0.1", 9500);
 
-        // 2. use NettyServer's publishService method, which register provider and nacos register
+        // 2. use NettyServer's publishService method, which registers service's provider and service's nacos
         HelloService service = new HelloServiceImpl();
         rpcServer.publishService(service, HelloService.class);
 
