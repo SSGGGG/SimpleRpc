@@ -6,6 +6,7 @@ import com.excelman.rpc.enumeration.ResponseCode;
 import com.excelman.rpc.provider.DefaultServiceProvider;
 import com.excelman.rpc.provider.ServiceProvider;
 import com.excelman.rpc.transport.RpcServer;
+import com.excelman.rpc.transport.socket.AbstractRpcServer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -23,7 +24,7 @@ import java.util.concurrent.*;
  * @date 2021/9/13 下午8:24
  * @description RPC服务端
  */
-public class SocketServer implements RpcServer {
+public class SocketServer extends AbstractRpcServer {
 
     private static final Logger logger = LoggerFactory.getLogger(SocketServer.class);
 
@@ -32,9 +33,6 @@ public class SocketServer implements RpcServer {
     private static final long KEEP_ALIVE_TIME = 60;
     private final ExecutorService threadPool;
     private DefaultServiceProvider registry = new DefaultServiceProvider();
-
-    private String host;
-    private int port;
 
     public SocketServer(String host, int port) {
         this.host = host;
@@ -60,12 +58,6 @@ public class SocketServer implements RpcServer {
             threadPool.shutdown();
         }
     }
-
-    @Override
-    public <T> void publishService(Object service, Class<T> serviceClass) {
-        // todo
-    }
-
 }
 
 /**

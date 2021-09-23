@@ -2,7 +2,7 @@ package com.excelman.rpc.transport.netty.server;
 
 import com.excelman.rpc.entity.RpcRequest;
 import com.excelman.rpc.entity.RpcResponse;
-import com.excelman.rpc.handler.RequestHandler;
+import com.excelman.rpc.enumeration.ResponseCode;
 import com.excelman.rpc.provider.DefaultServiceProvider;
 import com.excelman.rpc.provider.ServiceProvider;
 import io.netty.channel.ChannelFuture;
@@ -12,6 +12,9 @@ import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.util.ReferenceCountUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 
 /**
  * @author Excelman
@@ -54,4 +57,40 @@ public class NettyServerHandler extends SimpleChannelInboundHandler<RpcRequest> 
         cause.printStackTrace();
         ctx.close();
     }
+}
+
+/**
+ * @author Excelman
+ * @date 2021/9/22 下午3:55
+ * @description 处理请求的具体实现类，职责：反射调用指定的类.方法()，并返回结果
+ */
+class RequestHandler {
+
+    /**
+     * 执行反射方法，返回结果
+     * @param service 具体服务类
+     * @return
+     */
+    public Object handle(RpcRequest rpcRequest, Object service){
+        Object result = null;
+        try{
+            result = handleInvoke(rpcRequest, service);
+        } catch (InvocationTargetException e) {
+            e.printStackTrace();
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+        }
+        return result;
+    }
+
+    private Object handleInvoke(RpcRequest rpcRequest, Object service) throws InvocationTargetException, IllegalAccessException {
+        Method method = null;
+        try{
+            method = service.getClass().getMethod(rpcRequest.getMethodName(), rpcRequest.getParamTypes());
+        } catch (NoSuchMethodException e) {
+            return RpcResponse.fail(ResponseCode.METHOD_NO_FOUND);
+        }
+        return method.invoke(service, rpcRequest.getParameters());
+    }
+
 }

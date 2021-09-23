@@ -14,7 +14,7 @@ import java.util.concurrent.ConcurrentHashMap;
 /**
  * @author Excelman
  * @date 2021/9/23 下午2:16
- * @description 管理Nacos连接等的工具类, todo 将所有Nacos的服务全部转移到这里
+ * @description 管理Nacos连接等的工具类
  */
 public class NacosUtils {
 
@@ -41,7 +41,7 @@ public class NacosUtils {
     }
 
     /**
-     * 注册服务到Nacos中，并添加到本地map中
+     * 注册接口服务到Nacos中，并添加到本地map中
      */
     public static void register(String serviceName, String host, int port){
         try {

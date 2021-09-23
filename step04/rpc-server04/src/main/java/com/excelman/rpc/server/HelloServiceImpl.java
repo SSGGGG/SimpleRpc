@@ -2,6 +2,7 @@ package com.excelman.rpc.server;
 
 import com.excelman.rpc.HelloObject;
 import com.excelman.rpc.HelloService;
+import com.excelman.rpc.annotation.Service;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -10,6 +11,7 @@ import org.slf4j.LoggerFactory;
  * @date 2021/9/13 下午7:15
  * @description 服务端：API接口的实现类
  */
+@Service
 public class HelloServiceImpl implements HelloService {
     private static final Logger logger = LoggerFactory.getLogger(HelloServiceImpl.class);
 

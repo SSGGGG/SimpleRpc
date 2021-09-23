@@ -13,6 +13,7 @@
         <option value="$PROJECT_DIR$/common/pom.xml" />
         <option value="$PROJECT_DIR$/rpc-api02/pom.xml" />
         <option value="$PROJECT_DIR$/step01/ApiTest/pom.xml" />
+        <option value="$PROJECT_DIR$/step04/ServerTest04/pom.xml" />
       </set>
     </option>
   </component>

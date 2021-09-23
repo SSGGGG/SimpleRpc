@@ -29,7 +29,9 @@ public enum RpcError {
     JSON_SERIALIZE_ERROR("JSON序列化过程异常"),
     JSON_DESERIALIZE_ERROR("JSON解序列化过程异常"),
     KRYO_SERIALIZE_ERROR("KRYO序列化过程异常"),
-    KRYO_DESERIALIZE_ERROR("KRYO解序列化过程异常");
+    KRYO_DESERIALIZE_ERROR("KRYO解序列化过程异常"),
+
+    NO_ANNOTATION_SERVICE_SCAN("没有添加@ServiceScan注解");
 
     private final String message;
 }

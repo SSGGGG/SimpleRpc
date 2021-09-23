@@ -12,9 +12,8 @@ public interface ServiceRegistry {
     /**
      * 注册服务及其地址到Nacos中
      * @param serviceName 接口服务名
-     * @param socketAddress 地址
      */
-    void register(String serviceName, InetSocketAddress socketAddress);
+    void register(String serviceName, String host, int port);
 
     /**
      * 从Nacos中根据服务名获取地址

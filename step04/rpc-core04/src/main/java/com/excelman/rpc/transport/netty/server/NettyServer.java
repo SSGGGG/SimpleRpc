@@ -9,6 +9,7 @@ import com.excelman.rpc.registry.NacosServiceRegistry;
 import com.excelman.rpc.registry.ServiceRegistry;
 import com.excelman.rpc.serializer.KryoSerializer;
 import com.excelman.rpc.transport.RpcServer;
+import com.excelman.rpc.transport.socket.AbstractRpcServer;
 import com.excelman.rpc.utils.NacosUtils;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.*;
@@ -34,18 +35,16 @@ import java.util.concurrent.TimeUnit;
  * @date 2021/9/22 上午10:00
  * @description netty实现的服务端
  */
-public class NettyServer implements RpcServer {
+public class NettyServer extends AbstractRpcServer {
 
     private static final Logger logger = LoggerFactory.getLogger(NettyServer.class);
-
-    private final String host;
-    private final int port;
-    private ServiceProvider serviceProvider;
 
     public NettyServer(String host, int port){
         this.host = host;
         this.port = port;
-        serviceProvider = new DefaultServiceProvider();
+        this.serviceProvider = new DefaultServiceProvider();
+        this.serviceRegistry = new NacosServiceRegistry();
+        scanService();
     }
 
     /**
@@ -94,22 +93,5 @@ public class NettyServer implements RpcServer {
             bossGroup.shutdownGracefully();
             workerGroup.shutdownGracefully();
         }
-    }
-
-    /**
-     * 将service及其实现的接口注册到本地Provider的map中，再将具体实现类及其地址注册到NacosRegistry中
-     * (客户端欲获取地址的时候，首先通过本地Provider获取接口对应的具体实现类，再从NacosRegistry中获取地址)
-     *
-     * @param service 具体服务实现类
-     * @param serviceClass 服务的接口类型
-     * @param <T>
-     */
-    @Override
-    public <T> void publishService(Object service, Class<T> serviceClass) {
-        // 将服务保存在本地map中
-        serviceProvider.registerProvider(service);
-        // 将接口服务及其地址保存在nacos中
-        NacosUtils.register(serviceClass.getCanonicalName(), host, port);
-//        serviceRegistry.register(serviceClass.getCanonicalName(), new InetSocketAddress(host, port));
     }
 }

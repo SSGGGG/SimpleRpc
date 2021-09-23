@@ -13,10 +13,7 @@ public interface RpcServer {
     void start();
 
     /**
-     * 向nacos发布服务
-     * @param service
-     * @param serviceClass
-     * @param <T>
+     * scan service and register
      */
-    <T> void publishService(Object service, Class<T> serviceClass);
+    void scanService();
 }

@@ -22,7 +22,9 @@ public class ClientTest {
         HelloService proxy = rpcClientProxy.getProxy(HelloService.class);
 
         // 3. use proxy service's method
-        String result = proxy.hello(new HelloObject(1, "TestNacosRegistry"));
-        System.out.println("返回结果：" + result);
+        for(int i=0; i<20; i++){
+            String result = proxy.hello(new HelloObject(1, "TestNacosRegistry"));
+            System.out.println("返回结果：" + result);
+        }
     }
 }

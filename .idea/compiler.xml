@@ -8,7 +8,6 @@
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
         <module name="ServerTest03" />
-        <module name="ServerTest04" />
         <module name="ClientTest02" />
         <module name="rpc-server" />
         <module name="ClientTest" />
@@ -43,6 +42,7 @@
       <module name="rpc-core (1)" target="8" />
       <module name="rpc-server (1)" target="8" />
       <module name="ServerTest (1)" target="8" />
+      <module name="ServerTest04" target="8" />
     </bytecodeTargetLevel>
   </component>
   <component name="JavacSettings">

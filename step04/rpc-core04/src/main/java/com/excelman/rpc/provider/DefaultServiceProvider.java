@@ -12,7 +12,7 @@ import java.util.concurrent.ConcurrentHashMap;
 /**
  * @author Excelman
  * @date 2021/9/14 上午11:15
- * @description 默认的服务注册实现类
+ * @description 职责：保存“接口名——具体实现服务类”关联关系的容器
  */
 public class DefaultServiceProvider implements ServiceProvider {
 

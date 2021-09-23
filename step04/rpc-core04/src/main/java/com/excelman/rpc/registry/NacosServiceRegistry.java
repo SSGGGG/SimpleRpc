@@ -8,6 +8,7 @@ import com.excelman.rpc.enumeration.RpcError;
 import com.excelman.rpc.exception.RpcException;
 import com.excelman.rpc.loadbalancer.LoadBalancer;
 import com.excelman.rpc.loadbalancer.RandomLoadBalancer;
+import com.excelman.rpc.utils.NacosUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -49,13 +50,8 @@ public class NacosServiceRegistry implements ServiceRegistry{
     }
 
     @Override
-    public void register(String serviceName, InetSocketAddress socketAddress) {
-        try {
-            namingService.registerInstance(serviceName, socketAddress.getHostName(), socketAddress.getPort());
-        } catch (NacosException e) {
-            logger.error("注册nacos服务发生异常：{}",e);
-            throw new RpcException(RpcError.REGISTER_SERVICE_FAILED);
-        }
+    public void register(String serviceName, String host, int port) {
+        NacosUtils.register(serviceName, host, port);
     }
 
     @Override
