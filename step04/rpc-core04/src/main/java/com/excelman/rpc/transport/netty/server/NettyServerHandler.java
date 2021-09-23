@@ -3,8 +3,8 @@ package com.excelman.rpc.transport.netty.server;
 import com.excelman.rpc.entity.RpcRequest;
 import com.excelman.rpc.entity.RpcResponse;
 import com.excelman.rpc.handler.RequestHandler;
-import com.excelman.rpc.provider.DefaultServiceRegistry;
-import com.excelman.rpc.provider.ServiceRegistry;
+import com.excelman.rpc.provider.DefaultServiceProvider;
+import com.excelman.rpc.provider.ServiceProvider;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
@@ -22,11 +22,11 @@ public class NettyServerHandler extends SimpleChannelInboundHandler<RpcRequest> 
 
     private final Logger logger = LoggerFactory.getLogger(NettyServerHandler.class);
     private static RequestHandler requestHandler;
-    private static ServiceRegistry serviceRegistry;
+    private static ServiceProvider serviceProvider;
 
     static{
         requestHandler = new RequestHandler();
-        serviceRegistry = new DefaultServiceRegistry();
+        serviceProvider = new DefaultServiceProvider();
     }
 
     /**
@@ -37,7 +37,7 @@ public class NettyServerHandler extends SimpleChannelInboundHandler<RpcRequest> 
     protected void channelRead0(ChannelHandlerContext ctx, RpcRequest rpcRequest) throws Exception {
         try{
             logger.info("服务端接收到消息:{}",rpcRequest);
-            Object service = serviceRegistry.getService(rpcRequest.getInterfaceName());
+            Object service = serviceProvider.getServiceProvider(rpcRequest.getInterfaceName());
             Object result = requestHandler.handle(rpcRequest, service);
 
             ChannelFuture future = ctx.writeAndFlush(RpcResponse.success(result));

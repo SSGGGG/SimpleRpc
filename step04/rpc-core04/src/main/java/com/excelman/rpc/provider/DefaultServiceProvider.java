@@ -1,4 +1,4 @@
-package com.excelman.rpc.registry;
+package com.excelman.rpc.provider;
 
 import com.excelman.rpc.enumeration.RpcError;
 import com.excelman.rpc.exception.RpcException;
@@ -14,26 +14,26 @@ import java.util.concurrent.ConcurrentHashMap;
  * @date 2021/9/14 上午11:15
  * @description 默认的服务注册实现类
  */
-public class DefaultServiceRegistry implements ServiceRegistry{
+public class DefaultServiceProvider implements ServiceProvider {
 
-    private final Logger logger = LoggerFactory.getLogger(DefaultServiceRegistry.class);
+    private final Logger logger = LoggerFactory.getLogger(DefaultServiceProvider.class);
 
     /**
      * 采用map存放 服务接口名——具体服务实现类
      */
-    private final Map<String, Object> serviceMap = new ConcurrentHashMap<>();
+    private static final Map<String, Object> serviceMap = new ConcurrentHashMap<>();
 
     /**
      * 采用set存放 具体服务实现类名（用于判断是否注册）
      */
-    private final Set<String> registeredService = ConcurrentHashMap.newKeySet();
+    private static final Set<String> registeredService = ConcurrentHashMap.newKeySet();
 
     /**
      * 注册服务
      * @param service 具体服务实现类
      */
     @Override
-    public synchronized <T> void register(T service) {
+    public synchronized <T> void registerProvider(T service) {
         String serviceName = service.getClass().getCanonicalName();
         if(registeredService.contains(serviceName)) return;
         registeredService.add(serviceName);
@@ -49,12 +49,13 @@ public class DefaultServiceRegistry implements ServiceRegistry{
     }
 
     /**
+     * TODO 万一一个接口有多个实现类呢？get的结果就是多个service实现类了？
      * 根据服务接口名，获取实现的服务
      * @param serviceName 服务接口名
      * @return
      */
     @Override
-    public synchronized Object getService(String serviceName) {
+    public synchronized Object getServiceProvider(String serviceName) {
         Object service = serviceMap.get(serviceName);
         if(null == service){
             throw new RpcException(RpcError.SERVICE_NOT_FOUND);

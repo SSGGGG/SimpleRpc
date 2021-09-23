@@ -1,9 +1,8 @@
 package com.excelman.serverTest;
 
-import com.excelman.rpc.HelloService;
 import com.excelman.rpc.RpcServer;
-import com.excelman.rpc.registry.DefaultServiceRegistry;
-import com.excelman.rpc.registry.ServiceRegistry;
+import com.excelman.rpc.provider.DefaultServiceRegistry;
+import com.excelman.rpc.provider.ServiceRegistry;
 import com.excelman.rpc.server.HelloServiceImpl;
 
 /**

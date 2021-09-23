@@ -1,4 +1,4 @@
-package com.excelman.rpc.registry;
+package com.excelman.rpc.provider;
 
 import com.excelman.rpc.enumeration.RpcError;
 import com.excelman.rpc.exception.RpcException;

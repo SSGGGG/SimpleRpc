@@ -7,29 +7,31 @@
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
+        <module name="ServerTest03" />
+        <module name="ServerTest04" />
+        <module name="ClientTest02" />
+        <module name="rpc-server" />
+        <module name="ClientTest" />
+        <module name="ServerTest02" />
+        <module name="WebSocketDemo" />
+        <module name="rpc-api" />
+        <module name="rpc-core" />
         <module name="rpc-common02" />
         <module name="rpc-common03" />
         <module name="rpc-common" />
+        <module name="rpc-common04" />
         <module name="rpc-server04" />
         <module name="rpc-server03" />
         <module name="rpc-server02" />
+        <module name="ClientTest04" />
         <module name="ServerTest" />
         <module name="ClientTest03" />
         <module name="rpc-api04" />
         <module name="rpc-api03" />
         <module name="rpc-api02" />
-        <module name="rpt-common04" />
-        <module name="ServerTest03" />
-        <module name="ClientTest02" />
-        <module name="rpc-server" />
         <module name="rpc-core03" />
         <module name="rpc-core04" />
-        <module name="ClientTest" />
         <module name="rpc-core02" />
-        <module name="ServerTest02" />
-        <module name="WebSocketDemo" />
-        <module name="rpc-api" />
-        <module name="rpc-core" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>

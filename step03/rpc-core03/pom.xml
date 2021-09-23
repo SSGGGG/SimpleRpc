@@ -22,6 +22,7 @@
             <artifactId>rpc-common03</artifactId>
             <version>1.0-SNAPSHOT</version>
         </dependency>
+        <!-- Jackson -->
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-core</artifactId>

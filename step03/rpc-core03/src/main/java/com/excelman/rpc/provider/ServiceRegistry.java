@@ -1,4 +1,4 @@
-package com.excelman.rpc.registry;
+package com.excelman.rpc.provider;
 
 /**
  * @author Excelman

@@ -1,7 +1,7 @@
 package com.excelman.servetTest;
 
 import com.excelman.rpc.HelloService;
-import com.excelman.rpc.registry.DefaultServiceRegistry;
+import com.excelman.rpc.provider.DefaultServiceRegistry;
 import com.excelman.rpc.server.HelloServiceImpl;
 import com.excelman.rpc.transport.netty.server.NettyServer;
 

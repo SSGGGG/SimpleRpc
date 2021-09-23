@@ -1,9 +1,11 @@
-package com.excelman.rpc;
+package com.excelman.rpc.transport.socket.server;
 
 import com.excelman.rpc.entity.RpcRequest;
 import com.excelman.rpc.entity.RpcResponse;
 import com.excelman.rpc.enumeration.ResponseCode;
-import com.excelman.rpc.provider.ServiceRegistry;
+import com.excelman.rpc.provider.DefaultServiceProvider;
+import com.excelman.rpc.provider.ServiceProvider;
+import com.excelman.rpc.transport.RpcServer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -21,36 +23,47 @@ import java.util.concurrent.*;
  * @date 2021/9/13 下午8:24
  * @description RPC服务端
  */
-public class RpcServer {
+public class SocketServer implements RpcServer {
 
-    private static final Logger logger = LoggerFactory.getLogger(RpcServer.class);
+    private static final Logger logger = LoggerFactory.getLogger(SocketServer.class);
 
     private static final int CORE_POOL_SIZE = 5;
     private static final int MAXIMUN_POOL_SIZE = 50;
     private static final long KEEP_ALIVE_TIME = 60;
     private final ExecutorService threadPool;
-    private final ServiceRegistry serviceRegistry;
+    private DefaultServiceProvider registry = new DefaultServiceProvider();
 
-    public RpcServer(ServiceRegistry serviceRegistry) {
+    private String host;
+    private int port;
+
+    public SocketServer(String host, int port) {
+        this.host = host;
+        this.port = port;
+
         BlockingQueue<Runnable> queue = new ArrayBlockingQueue<>(100);
         ThreadFactory threadFactory = Executors.defaultThreadFactory();
         threadPool = new ThreadPoolExecutor(CORE_POOL_SIZE, MAXIMUN_POOL_SIZE, KEEP_ALIVE_TIME, TimeUnit.SECONDS, queue, threadFactory);
-        this.serviceRegistry = serviceRegistry;
     }
 
-    public void start(int port){
-        try(ServerSocket serverSocket = new ServerSocket(port)){
+    @Override
+    public void start(){
+        try(ServerSocket serverSocket = new ServerSocket(this.port)){
             logger.info("服务端开启");
             Socket socket;
             while((socket = serverSocket.accept()) != null){
                 logger.info("客户端连接：{},{}", socket.getInetAddress(), socket.getPort());
-                threadPool.execute(new RequestHandlerThread(socket, serviceRegistry));
+                threadPool.execute(new RequestHandlerThread(socket, registry));
             }
         } catch (IOException e) {
             logger.error("服务端socket连接发生异常：{}",e);
         } finally {
             threadPool.shutdown();
         }
+    }
+
+    @Override
+    public <T> void publishService(Object service, Class<T> serviceClass) {
+        // todo
     }
 
 }
@@ -65,12 +78,12 @@ class RequestHandlerThread implements Runnable{
     private static final Logger logger = LoggerFactory.getLogger(RequestHandlerThread.class);
 
     private Socket socket;
-    private ServiceRegistry serviceRegistry;
+    private ServiceProvider serviceProvider;
     private RequestHandler requestHandler;
 
-    public RequestHandlerThread(Socket socket, ServiceRegistry serviceRegistry) {
+    public RequestHandlerThread(Socket socket, ServiceProvider serviceProvider) {
         this.socket = socket;
-        this.serviceRegistry = serviceRegistry;
+        this.serviceProvider = serviceProvider;
         this.requestHandler = new RequestHandler();
     }
 
@@ -81,7 +94,7 @@ class RequestHandlerThread implements Runnable{
             // 根据客户端调用的接口名，从服务注册类中获取具体的实现类
             RpcRequest rpcRequest = (RpcRequest) inputStream.readObject();
             String interfaceName = rpcRequest.getInterfaceName();
-            Object service = serviceRegistry.getService(interfaceName);
+            Object service = serviceProvider.getServiceProvider(interfaceName);
             // 通过RequestHandler，执行具体的反射方法
             Object result = requestHandler.handle(rpcRequest, service);
             // 将结果返回给客户端
