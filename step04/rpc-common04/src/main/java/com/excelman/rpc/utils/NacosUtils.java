@@ -25,7 +25,7 @@ public class NacosUtils {
     private static final NamingService namingService;
 
     /* 注册到Nacos的服务及其地址 */
-    private static final Map<String, InetSocketAddress> service = new ConcurrentHashMap<>();
+    private static final Map<String, InetSocketAddress> service = new HashMap<>();
 
     static{
         namingService = getNamingService();
@@ -53,18 +53,16 @@ public class NacosUtils {
     }
 
     /**
-     * 服务器线程关闭，销毁nacos上的服务连接
+     * 服务器线程关闭，注销nacos的服务连接
      */
     public static void deRegister(){
-        while(!service.isEmpty()){
-            service.forEach((serviceName, address) -> {
-                try {
-                    namingService.deregisterInstance(serviceName, address.getHostName(), address.getPort());
-                } catch (NacosException e) {
-                    logger.error("销毁服务 {} 的时候出现了异常:{}",serviceName, e);
-                }
-                service.remove(serviceName);
-            });
+        for(Map.Entry<String, InetSocketAddress> entry : service.entrySet()){
+            try{
+                InetSocketAddress value = entry.getValue();
+                namingService.deregisterInstance(entry.getKey(), value.getHostName(), value.getPort());
+            } catch (NacosException e) {
+                logger.error("销毁服务 {} 的时候出现了异常:{}",entry.getKey(), e);
+            }
         }
     }
 }

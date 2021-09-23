@@ -14,7 +14,7 @@ public class ServerTest {
 
     public static void main(String[] args) {
         // 1. create NettyServer ( determine the host and port )
-        RpcServer rpcServer = new NettyServer("127.0.0.1", 9500);
+        RpcServer rpcServer = new NettyServer("localhost", 9500);
 
         // 2. start() the server
         rpcServer.start();
