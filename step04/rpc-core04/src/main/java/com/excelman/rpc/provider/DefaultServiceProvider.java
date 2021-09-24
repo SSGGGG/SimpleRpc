@@ -20,6 +20,7 @@ public class DefaultServiceProvider implements ServiceProvider {
 
     /**
      * 采用map存放 服务接口名——具体服务实现类
+     * todo 待完善，一个接口只能注册一个具体服务实现类（map中key相同的数据只有一个）
      */
     private static final Map<String, Object> serviceMap = new ConcurrentHashMap<>();
 
@@ -49,7 +50,6 @@ public class DefaultServiceProvider implements ServiceProvider {
     }
 
     /**
-     * TODO 万一一个接口有多个实现类呢？get的结果就是多个service实现类了？
      * 根据服务接口名，获取实现的服务
      * @param serviceName 服务接口名
      * @return

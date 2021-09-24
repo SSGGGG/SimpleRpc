@@ -10,6 +10,7 @@ import com.excelman.rpc.provider.DefaultServiceProvider;
 import com.excelman.rpc.provider.ServiceProvider;
 import com.excelman.rpc.registry.NacosServiceRegistry;
 import com.excelman.rpc.registry.ServiceRegistry;
+import com.excelman.rpc.serializer.CommonSerializer;
 import com.excelman.rpc.serializer.KryoSerializer;
 import com.excelman.rpc.transport.RpcClient;
 import io.netty.bootstrap.Bootstrap;
@@ -34,20 +35,35 @@ import java.net.InetSocketAddress;
  */
 public class NettyClient implements RpcClient {
 
-    private final Logger logger = LoggerFactory.getLogger(NettyClient.class);
-    private static final EventLoopGroup group;
-    private static final Bootstrap bootstrap;
-    private static ServiceRegistry serviceRegistry;
+    private static final Logger logger = LoggerFactory.getLogger(NettyClient.class);
+    private EventLoopGroup group;
+    private Bootstrap bootstrap;
+    private ServiceRegistry serviceRegistry;
+    private CommonSerializer serializer;
+
+    public NettyClient(){
+        this(null, null);
+    }
+    public NettyClient(LoadBalancer loadBalancer, CommonSerializer serializer){
+        if(null == loadBalancer){
+            loadBalancer = new RandomLoadBalancer();
+        }
+        this.serviceRegistry = new NacosServiceRegistry(loadBalancer);
+        if(null == serializer){
+            this.serializer = CommonSerializer.getByCode(CommonSerializer.DEFAULT_SERIALIZER);
+        }else{
+            this.serializer = serializer;
+        }
+        init();
+    }
 
     /**
-     * 静态初始化netty，在sendRequest方法中发送请求的时候再启动
+     * 初始化netty，在sendRequest方法中发送请求的时候再启动
      * 其中handler的执行顺序
      *      接受请求时：Decoder----NettyClientHandler
      *      返回结果时：Encoder
-     *
-     * 静态创建ServiceRegistry对象
      */
-    static {
+    private void init(){
         group = new NioEventLoopGroup();
         bootstrap = new Bootstrap();
         bootstrap.group(group)
@@ -58,24 +74,13 @@ public class NettyClient implements RpcClient {
                     protected void initChannel(SocketChannel socketChannel) throws Exception {
                         ChannelPipeline pipeline = socketChannel.pipeline();
                         // CommonDecoder是Inbound类型
-                        pipeline.addLast(new CommonDecoder());
+                        pipeline.addLast(new CommonDecoder())
                         // CommonEncoder是Outbound类型
-                        pipeline.addLast(new CommonEncoder(new KryoSerializer()));
+                        .addLast(new CommonEncoder(serializer))
                         // 自定义的handler是Inbound类型
-                        pipeline.addLast(new NettyClientHandler());
+                        .addLast(new NettyClientHandler());
                     }
                 });
-    }
-
-    public NettyClient(){
-        this(null);
-    }
-
-    public NettyClient(LoadBalancer loadBalancer){
-        if(null == loadBalancer){
-            loadBalancer = new RandomLoadBalancer();
-        }
-        serviceRegistry = new NacosServiceRegistry(loadBalancer);
     }
 
     /**

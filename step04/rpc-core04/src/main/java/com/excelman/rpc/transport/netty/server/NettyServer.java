@@ -4,13 +4,9 @@ import com.excelman.rpc.coder.CommonDecoder;
 import com.excelman.rpc.coder.CommonEncoder;
 import com.excelman.rpc.hook.ShutdownHook;
 import com.excelman.rpc.provider.DefaultServiceProvider;
-import com.excelman.rpc.provider.ServiceProvider;
 import com.excelman.rpc.registry.NacosServiceRegistry;
-import com.excelman.rpc.registry.ServiceRegistry;
-import com.excelman.rpc.serializer.KryoSerializer;
-import com.excelman.rpc.transport.RpcServer;
-import com.excelman.rpc.transport.socket.AbstractRpcServer;
-import com.excelman.rpc.utils.NacosUtils;
+import com.excelman.rpc.serializer.CommonSerializer;
+import com.excelman.rpc.transport.AbstractRpcServer;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
@@ -19,11 +15,9 @@ import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.handler.logging.LogLevel;
 import io.netty.handler.logging.LoggingHandler;
 import io.netty.handler.timeout.IdleStateHandler;
-import org.apache.http.impl.client.DefaultServiceUnavailableRetryStrategy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.net.InetSocketAddress;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -40,10 +34,14 @@ public class NettyServer extends AbstractRpcServer {
     private static final Logger logger = LoggerFactory.getLogger(NettyServer.class);
 
     public NettyServer(String host, int port){
+        this(host, port, CommonSerializer.getByCode(CommonSerializer.DEFAULT_SERIALIZER));
+    }
+    public NettyServer(String host, int port, CommonSerializer serializer){
         this.host = host;
         this.port = port;
         this.serviceProvider = new DefaultServiceProvider();
         this.serviceRegistry = new NacosServiceRegistry();
+        this.serializer = serializer;
         scanService();
     }
 
@@ -77,7 +75,7 @@ public class NettyServer extends AbstractRpcServer {
                             ChannelPipeline pipeline = socketChannel.pipeline();
                             // IdleStateHandler属于Inbound类型
                             pipeline.addLast(new IdleStateHandler(30, 0, 0, TimeUnit.SECONDS))
-                                    .addLast(new CommonEncoder(new KryoSerializer())) // out类型
+                                    .addLast(new CommonEncoder(serializer)) // out类型
                                     .addLast(new CommonDecoder())   // In类型
                                     .addLast(new NettyServerHandler()); // In类型
                         }

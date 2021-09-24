@@ -1,4 +1,4 @@
-package com.excelman.rpc.transport.socket;
+package com.excelman.rpc.transport;
 
 import com.excelman.rpc.annotation.Service;
 import com.excelman.rpc.annotation.ServiceScan;
@@ -6,6 +6,7 @@ import com.excelman.rpc.enumeration.RpcError;
 import com.excelman.rpc.exception.RpcException;
 import com.excelman.rpc.provider.ServiceProvider;
 import com.excelman.rpc.registry.ServiceRegistry;
+import com.excelman.rpc.serializer.CommonSerializer;
 import com.excelman.rpc.transport.RpcServer;
 import com.excelman.rpc.utils.NacosUtils;
 import com.excelman.rpc.utils.ReflectUtils;
@@ -22,7 +23,8 @@ import java.util.Set;
 public abstract class AbstractRpcServer implements RpcServer {
 
     /*
-     * 采用protected，可以抽象出子类的公共属性
+     * 采用protected，可以抽象出子类的公共属性；
+     * 采用final，可以使得继承的子类无法改变该成员变量的引用；
      */
 
     protected final Logger logger = LoggerFactory.getLogger(this.getClass());
@@ -32,6 +34,7 @@ public abstract class AbstractRpcServer implements RpcServer {
 
     protected ServiceRegistry serviceRegistry;
     protected ServiceProvider serviceProvider;
+    protected CommonSerializer serializer;
 
     /**
      * 1. 获取启动类名称，并通过反射获取该类，判断是否有ServiceScan注解

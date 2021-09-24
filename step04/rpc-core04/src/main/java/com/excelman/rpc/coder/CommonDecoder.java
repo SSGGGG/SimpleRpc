@@ -27,7 +27,7 @@ public class CommonDecoder extends ReplayingDecoder {
     private static final int MAGIC_NUMBER = 0xCAFEBABE;
 
     /**
-     * 1. 识别协议包(MAGIC_NUMBER)
+     * 1. 识别协议包(MAGIC_NUMBER)，并判断真伪
      * 2. 识别packageType，用于反序列化
      * 3. 识别反序列化器类型
      * 4. 通过反序列化器，反序列化数据，并添加到out中
@@ -49,7 +49,7 @@ public class CommonDecoder extends ReplayingDecoder {
             logger.info("不识别的包类型：{}", packageType);
             throw new RpcException(RpcError.UNKNOWN_PACKAGE_TYPE);
         }
-        // 最终进行解序列化过程
+        // 最终进行反序列化过程
         int serializerType = in.readInt();
         CommonSerializer serializer = CommonSerializer.getByCode(serializerType);
         if(null == serializer){

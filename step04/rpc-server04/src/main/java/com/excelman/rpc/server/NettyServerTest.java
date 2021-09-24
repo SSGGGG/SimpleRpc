@@ -7,10 +7,10 @@ import com.excelman.rpc.transport.netty.server.NettyServer;
 /**
  * @author Excelman
  * @date 2021/9/23 上午10:50
- * @description 服务端测试
+ * @description Netty服务端测试
  */
 @ServiceScan
-public class ServerTest {
+public class NettyServerTest {
 
     public static void main(String[] args) {
         // 1. create NettyServer ( determine the host and port )

@@ -11,7 +11,7 @@ import com.excelman.rpc.transport.netty.client.NettyClient;
  * @date 2021/9/23 上午10:47
  * @description 客户端测试
  */
-public class ClientTest {
+public class NettyClientTest {
 
     public static void main(String[] args) {
         // 1. create RpcClient

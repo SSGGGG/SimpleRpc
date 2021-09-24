@@ -9,8 +9,6 @@ public interface CommonSerializer {
 
     int KRYO_SERIALIZER = 0;
     int JSON_SERIALIZER = 1;
-    int HESSIAN_SERIALIZER = 2;
-    int PROTOBUF_SERIALIZER = 3;
     int DEFAULT_SERIALIZER = KRYO_SERIALIZER;
 
     static CommonSerializer getByCode(int code){

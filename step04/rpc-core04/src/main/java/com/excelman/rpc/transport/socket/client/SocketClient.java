@@ -1,6 +1,8 @@
 package com.excelman.rpc.transport.socket.client;
 
 import com.excelman.rpc.entity.RpcRequest;
+import com.excelman.rpc.registry.NacosServiceRegistry;
+import com.excelman.rpc.registry.ServiceRegistry;
 import com.excelman.rpc.transport.RpcClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -8,6 +10,7 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.net.InetSocketAddress;
 import java.net.Socket;
 
 /**
@@ -19,12 +22,10 @@ public class SocketClient implements RpcClient {
 
     private static final Logger logger = LoggerFactory.getLogger(SocketClient.class);
 
-    private String host;
-    private int port;
+    private ServiceRegistry serviceRegistry;
 
-    public SocketClient(String host, int port){
-        this.host = host;
-        this.port = port;
+    public SocketClient(){
+        serviceRegistry = new NacosServiceRegistry();
     }
 
     /**
@@ -33,6 +34,12 @@ public class SocketClient implements RpcClient {
      */
     @Override
     public Object sendRequest(RpcRequest rpcRequest){
+        /* 通过RpcRequest中的调用接口名，在nacos服务发现中找到host和port */
+        String interfaceName = rpcRequest.getInterfaceName();
+        InetSocketAddress inetSocketAddress = serviceRegistry.lookupService(interfaceName);
+        String host = inetSocketAddress.getHostName();
+        int port = inetSocketAddress.getPort();
+
         try(Socket socket = new Socket(host, port)){
             ObjectOutputStream objectOutputStream = new ObjectOutputStream(socket.getOutputStream());
             ObjectInputStream objectInputStream = new ObjectInputStream(socket.getInputStream());

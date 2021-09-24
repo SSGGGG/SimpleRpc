@@ -3,10 +3,12 @@ package com.excelman.rpc.transport.socket.server;
 import com.excelman.rpc.entity.RpcRequest;
 import com.excelman.rpc.entity.RpcResponse;
 import com.excelman.rpc.enumeration.ResponseCode;
+import com.excelman.rpc.hook.ShutdownHook;
 import com.excelman.rpc.provider.DefaultServiceProvider;
 import com.excelman.rpc.provider.ServiceProvider;
-import com.excelman.rpc.transport.RpcServer;
-import com.excelman.rpc.transport.socket.AbstractRpcServer;
+import com.excelman.rpc.registry.NacosServiceRegistry;
+import com.excelman.rpc.serializer.CommonSerializer;
+import com.excelman.rpc.transport.AbstractRpcServer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -26,13 +28,10 @@ import java.util.concurrent.*;
  */
 public class SocketServer extends AbstractRpcServer {
 
-    private static final Logger logger = LoggerFactory.getLogger(SocketServer.class);
-
     private static final int CORE_POOL_SIZE = 5;
     private static final int MAXIMUN_POOL_SIZE = 50;
     private static final long KEEP_ALIVE_TIME = 60;
     private final ExecutorService threadPool;
-    private DefaultServiceProvider registry = new DefaultServiceProvider();
 
     public SocketServer(String host, int port) {
         this.host = host;
@@ -41,16 +40,24 @@ public class SocketServer extends AbstractRpcServer {
         BlockingQueue<Runnable> queue = new ArrayBlockingQueue<>(100);
         ThreadFactory threadFactory = Executors.defaultThreadFactory();
         threadPool = new ThreadPoolExecutor(CORE_POOL_SIZE, MAXIMUN_POOL_SIZE, KEEP_ALIVE_TIME, TimeUnit.SECONDS, queue, threadFactory);
+
+        serviceRegistry = new NacosServiceRegistry();
+        serviceProvider = new DefaultServiceProvider();
+
+        scanService();
     }
 
     @Override
     public void start(){
+        // register hook
+        ShutdownHook.getShutdownHook().clearAllNacosService();
+
         try(ServerSocket serverSocket = new ServerSocket(this.port)){
             logger.info("服务端开启");
             Socket socket;
             while((socket = serverSocket.accept()) != null){
-                logger.info("客户端连接：{},{}", socket.getInetAddress(), socket.getPort());
-                threadPool.execute(new RequestHandlerThread(socket, registry));
+                logger.info("客户端连接：{},{}", socket.getInetAddress().getHostName(), socket.getPort());
+                threadPool.execute(new RequestHandlerThread(socket, serviceProvider));
             }
         } catch (IOException e) {
             logger.error("服务端socket连接发生异常：{}",e);

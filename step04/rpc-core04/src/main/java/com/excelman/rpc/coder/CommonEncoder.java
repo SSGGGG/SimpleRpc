@@ -23,10 +23,22 @@ public class CommonEncoder extends MessageToByteEncoder {
 
     private final CommonSerializer serializer;
 
+    public CommonEncoder(){
+        this(CommonSerializer.getByCode(CommonSerializer.DEFAULT_SERIALIZER));
+    }
+
     public CommonEncoder(CommonSerializer serializer) {
         this.serializer = serializer;
     }
 
+    /**
+     * 1. 写入4个字节的int类型的魔数
+     * 2. 写入4个字节的int类型的包类型
+     * 3. 写入4个字节的int类型的序列化器的code
+     * 4. 写入4个字节的int类型的字节长度
+     * 5. 写入序列化后的字节数组
+     * @throws Exception
+     */
     @Override
     protected void encode(ChannelHandlerContext channelHandlerContext, Object in, ByteBuf out) throws Exception {
         out.writeInt(MAGIC_NUMBER);

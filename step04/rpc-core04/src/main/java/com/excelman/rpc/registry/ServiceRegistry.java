@@ -5,7 +5,7 @@ import java.net.InetSocketAddress;
 /**
  * @author Excelman
  * @date 2021/9/23 上午9:34
- * @description 服务注册接口定义
+ * @description 服务注册与发现接口定义
  */
 public interface ServiceRegistry {
 
