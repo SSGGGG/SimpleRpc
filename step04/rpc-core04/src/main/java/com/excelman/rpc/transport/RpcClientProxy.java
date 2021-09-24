@@ -47,6 +47,7 @@ public class RpcClientProxy implements InvocationHandler {
         rpcRequest.setMethodName(method.getName());
         rpcRequest.setParameters(args);
         rpcRequest.setParamTypes(method.getParameterTypes());
+        rpcRequest.setIsHeartBeat(false);
         // 发送rpcRequest，接收rpcResponse
         RpcResponse response = null;
         if(rpcClient instanceof SocketClient){  

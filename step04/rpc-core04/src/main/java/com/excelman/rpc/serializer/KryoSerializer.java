@@ -48,11 +48,12 @@ public class KryoSerializer implements CommonSerializer{
             Output output = new Output(outputStream)){
             Kryo kryo = kryoThreadLocal.get();
             kryo.writeObject(output, obj);
-            kryoThreadLocal.remove();
             return output.toBytes();
         } catch (IOException e) {
             logger.info("Kryo序列化过程中发生异常：{}", e);
             throw new RpcException(RpcError.KRYO_SERIALIZE_ERROR);
+        } finally {
+            kryoThreadLocal.remove();
         }
     }
 
@@ -68,11 +69,12 @@ public class KryoSerializer implements CommonSerializer{
             Input input  = new Input(inputStream)){
             Kryo kryo = kryoThreadLocal.get();
             Object object = kryo.readObject(input, clazz);
-            kryoThreadLocal.remove();
             return object;
         } catch (Exception e){
             logger.info("kryo解序列化过程中发生异常:{}",e);
             throw new RpcException(RpcError.KRYO_DESERIALIZE_ERROR);
+        } finally {
+            kryoThreadLocal.remove();
         }
     }
 

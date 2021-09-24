@@ -9,6 +9,9 @@ import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
+import io.netty.handler.timeout.IdleState;
+import io.netty.handler.timeout.IdleStateEvent;
+import io.netty.handler.timeout.IdleStateHandler;
 import io.netty.util.ReferenceCountUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,6 +42,11 @@ public class NettyServerHandler extends SimpleChannelInboundHandler<RpcRequest> 
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, RpcRequest rpcRequest) throws Exception {
         try{
+            /* 检查是否是心跳包 */
+            if(rpcRequest.getIsHeartBeat()){
+                logger.info("服务端接收到心跳包...");
+                return;
+            }
             logger.info("服务端接收到消息:{}",rpcRequest);
             Object service = serviceProvider.getServiceProvider(rpcRequest.getInterfaceName());
             Object result = requestHandler.handle(rpcRequest, service);
@@ -53,9 +61,27 @@ public class NettyServerHandler extends SimpleChannelInboundHandler<RpcRequest> 
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
-        logger.error("NettyServer在handler处理过程中发生异常：");
-        cause.printStackTrace();
+        logger.error("NettyServer在handler处理过程中发生异常：{}", cause);
         ctx.close();
+    }
+
+    /**
+     * 搭配心跳检测使用，当IdleStateHandler不满足条件的时候，会调用该方法
+     * @param ctx
+     * @param evt
+     * @throws Exception
+     */
+    @Override
+    public void userEventTriggered(ChannelHandlerContext ctx, Object evt) throws Exception {
+        if(evt instanceof IdleStateEvent){
+            IdleState state = ((IdleStateEvent) evt).state();
+            if(state == IdleState.READER_IDLE){
+                logger.error("长时间没有收到心跳包，自动断开连接...");
+                ctx.close();
+            }
+        }else {
+            super.userEventTriggered(ctx, evt);
+        }
     }
 }
 

@@ -32,6 +32,8 @@ public class CommonEncoder extends MessageToByteEncoder {
     }
 
     /**
+     * 自定义编解码传输协议
+     *
      * 1. 写入4个字节的int类型的魔数
      * 2. 写入4个字节的int类型的包类型
      * 3. 写入4个字节的int类型的序列化器的code

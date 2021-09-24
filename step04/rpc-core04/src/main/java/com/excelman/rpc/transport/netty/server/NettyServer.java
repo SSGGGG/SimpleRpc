@@ -73,8 +73,8 @@ public class NettyServer extends AbstractRpcServer {
                         @Override
                         protected void initChannel(SocketChannel socketChannel) throws Exception {
                             ChannelPipeline pipeline = socketChannel.pipeline();
-                            // IdleStateHandler属于Inbound类型
-                            pipeline.addLast(new IdleStateHandler(30, 0, 0, TimeUnit.SECONDS))
+                            // IdleStateHandler属于Inbound类型，用于心跳检测，第一个参数表示隔多久检查读事件是否发生，第二个参数表示隔多久检查一下写事件是否发生，第三个参数表示隔多久检查读写事件；
+                            pipeline.addLast(new IdleStateHandler(1, 0, 0, TimeUnit.SECONDS))
                                     .addLast(new CommonEncoder(serializer)) // out类型
                                     .addLast(new CommonDecoder())   // In类型
                                     .addLast(new NettyServerHandler()); // In类型

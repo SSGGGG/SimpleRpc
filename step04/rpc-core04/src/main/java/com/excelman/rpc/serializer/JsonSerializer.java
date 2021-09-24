@@ -21,7 +21,7 @@ public class JsonSerializer implements CommonSerializer{
     private final Logger logger = LoggerFactory.getLogger(JsonSerializer.class);
 
     // 使用Jackson工具
-    private ObjectMapper objectMapper = new ObjectMapper();
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
     @Override
     public byte[] serialize(Object obj) {

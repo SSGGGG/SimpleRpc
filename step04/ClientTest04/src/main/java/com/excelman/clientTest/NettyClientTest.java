@@ -13,7 +13,7 @@ import com.excelman.rpc.transport.netty.client.NettyClient;
  */
 public class NettyClientTest {
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws InterruptedException {
         // 1. create RpcClient
         RpcClient rpcClient = new NettyClient();
 
@@ -22,9 +22,12 @@ public class NettyClientTest {
         HelloService proxy = rpcClientProxy.getProxy(HelloService.class);
 
         // 3. use proxy service's method
-        for(int i=0; i<20; i++){
+        for(int i=0; i<2; i++){
             String result = proxy.hello(new HelloObject(1, "TestNacosRegistry"));
             System.out.println("返回结果：" + result);
+
+            Thread.sleep(3000);
+
         }
     }
 }

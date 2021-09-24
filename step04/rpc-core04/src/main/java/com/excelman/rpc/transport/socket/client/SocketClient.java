@@ -47,6 +47,7 @@ public class SocketClient implements RpcClient {
             objectOutputStream.writeObject(rpcRequest);
             objectOutputStream.flush();
 
+            logger.info("客户端发送消息:{}",rpcRequest.toString());
             // 服务端返回一个RpcResponse对象
             return objectInputStream.readObject();
         } catch (IOException | ClassNotFoundException e) {

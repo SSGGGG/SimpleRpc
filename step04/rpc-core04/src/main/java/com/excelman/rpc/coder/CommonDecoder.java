@@ -27,6 +27,8 @@ public class CommonDecoder extends ReplayingDecoder {
     private static final int MAGIC_NUMBER = 0xCAFEBABE;
 
     /**
+     * 自定义编解码传输协议
+     *
      * 1. 识别协议包(MAGIC_NUMBER)，并判断真伪
      * 2. 识别packageType，用于反序列化
      * 3. 识别反序列化器类型
