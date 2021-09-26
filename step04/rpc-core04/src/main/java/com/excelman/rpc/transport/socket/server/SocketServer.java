@@ -97,7 +97,7 @@ class RequestHandlerThread implements Runnable{
             // 通过RequestHandler，执行具体的反射方法
             Object result = requestHandler.handle(rpcRequest, service);
             // 将结果返回给客户端
-            outputStream.writeObject(RpcResponse.success(result));
+            outputStream.writeObject(RpcResponse.success(result, rpcRequest.getId()));
             outputStream.flush();
         } catch (IOException | ClassNotFoundException e) {
             e.printStackTrace();
@@ -132,7 +132,7 @@ class RequestHandler{
         try{
             method = service.getClass().getMethod(rpcRequest.getMethodName(), rpcRequest.getParamTypes());
         } catch (NoSuchMethodException e) {
-            return RpcResponse.fail(ResponseCode.METHOD_NO_FOUND);
+            return RpcResponse.fail(ResponseCode.METHOD_NO_FOUND, rpcRequest.getId());
         }
         return method.invoke(service, rpcRequest.getParameters());
     }

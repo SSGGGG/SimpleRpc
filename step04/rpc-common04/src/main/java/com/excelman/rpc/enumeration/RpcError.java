@@ -33,7 +33,8 @@ public enum RpcError {
 
     NO_ANNOTATION_SERVICE_SCAN("没有添加@ServiceScan注解"),
 
-    NETTY_SEND_MESSAGE_ERROR("send netty message error");
+    NETTY_SEND_MESSAGE_ERROR("send netty message error"),
+    NETTY_SEND_REQUEST_ERROR("send rpcRequest error");
 
     private final String message;
 }

@@ -16,6 +16,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.net.InetSocketAddress;
+import java.util.concurrent.CompletableFuture;
 
 /**
  * Inbound按照注册的先后顺序执行，Outbound按照注册的先后顺序逆序执行
@@ -57,34 +58,29 @@ public class NettyClient implements RpcClient {
      */
     @Override
     public Object sendRequest(RpcRequest rpcRequest) {
+        CompletableFuture resultFuture = new CompletableFuture();
         try {
             /* 从RpcRequest中获取调用接口，从nacos注册器中获取该接口对应的InetSocket地址 */
             String interfaceName = rpcRequest.getInterfaceName();
             InetSocketAddress inetSocketAddress = serviceRegistry.lookupService(interfaceName);
-
+            // put the future into UnProcessRequest's FutureMap
+            UnProcessRequest.put(rpcRequest.getId(), resultFuture);
             Channel channel = ChannelProvider.getChannel(inetSocketAddress, serializer);
             // 写入rpcRequest
-            channel.writeAndFlush(rpcRequest).addListener(future1 -> {
+            channel.writeAndFlush(rpcRequest).addListener((ChannelFutureListener)future1 -> {
                 if (future1.isSuccess()) {
-                    logger.info(String.format("客户端发送消息:%s", rpcRequest.toString()));
+                    logger.info(String.format("客户端发送消息:%s", rpcRequest));
                 } else {
+                    future1.channel().close();
+                    resultFuture.completeExceptionally(future1.cause());
                     logger.error("客户端发送消息失败:", future1.cause());
-                    throw new RpcException(RpcError.NETTY_SEND_MESSAGE_ERROR);
                 }
             });
-
-            // here is a problem, if choose to closeFuture().sync(), which means it will wait closeFuture
-
-            channel.closeFuture().sync(); // 这里阻塞等待channel关闭，再执行后续操作（因此NettyClientHandler先将rpcResponse方法哦channel.attr中）
-            AttributeKey<RpcResponse> key = AttributeKey.valueOf("RpcResponse");
-            RpcResponse rpcResponse = channel.attr(key).get();
-
-            System.out.println("response.getData():" + rpcResponse.getData());
-
-            return rpcResponse.getData();
-        } catch (InterruptedException e){
+        } catch (Exception e){
+            UnProcessRequest.remove(rpcRequest.getId());
             logger.error("NettyClient发送请求的时候发生异常：{}",e);
+            Thread.currentThread().interrupt();
         }
-        return null;
+        return resultFuture;
     }
 }

@@ -53,7 +53,7 @@ public class NettyServerHandler extends SimpleChannelInboundHandler<RpcRequest> 
             Object result = requestHandler.handle(rpcRequest, service);
             if(ctx.channel().isActive() && ctx.channel().isWritable()){
                 logger.info("RpcResponse.success({})", result);
-                ctx.writeAndFlush(RpcResponse.success(result));
+                ctx.writeAndFlush(RpcResponse.success(result, rpcRequest.getId()));
             }else{
                 logger.error("Current channel can not write anything!!!");
             }
@@ -121,7 +121,7 @@ class RequestHandler {
         try{
             method = service.getClass().getMethod(rpcRequest.getMethodName(), rpcRequest.getParamTypes());
         } catch (NoSuchMethodException e) {
-            return RpcResponse.fail(ResponseCode.METHOD_NO_FOUND);
+            return RpcResponse.fail(ResponseCode.METHOD_NO_FOUND, rpcRequest.getId());
         }
         return method.invoke(service, rpcRequest.getParameters());
     }

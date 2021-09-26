@@ -10,6 +10,8 @@ import org.slf4j.LoggerFactory;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
+import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 
 /**
  * @author Excelman
@@ -43,6 +45,7 @@ public class RpcClientProxy implements InvocationHandler {
         logger.info("客户端远程调用方法:{}#{}", method.getDeclaringClass().getName(), method.getName());
         // 创建RpcRequest对象
         RpcRequest rpcRequest = new RpcRequest();
+        rpcRequest.setId(UUID.randomUUID().toString()); // set random uuid
         rpcRequest.setInterfaceName(method.getDeclaringClass().getName());
         rpcRequest.setMethodName(method.getName());
         rpcRequest.setParameters(args);
@@ -50,12 +53,13 @@ public class RpcClientProxy implements InvocationHandler {
         rpcRequest.setIsHeartBeat(false);
         // 发送rpcRequest，接收rpcResponse
         RpcResponse response = null;
-        if(rpcClient instanceof SocketClient){  
+        if(rpcClient instanceof SocketClient){
             // 传回的是一个RpcResponse
             response = (RpcResponse) rpcClient.sendRequest(rpcRequest);
         }else if(rpcClient instanceof NettyClient){
-            // 传回的是RpcResponse.getData()
-            return rpcClient.sendRequest(rpcRequest);
+            // return CompletableFuture(here sync get result)
+            CompletableFuture future = (CompletableFuture) rpcClient.sendRequest(rpcRequest);
+            response = (RpcResponse) future.get();
         }
         return response.getData();
     }

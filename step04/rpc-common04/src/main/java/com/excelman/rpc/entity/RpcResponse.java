@@ -29,22 +29,29 @@ public class RpcResponse<T> implements Serializable {
     private T data;
 
     /**
+     * requestId
+     */
+    private String requestId;
+
+    /**
      * 成功的时候调用
      */
-    public static <T> RpcResponse<T> success(T data){
+    public static <T> RpcResponse<T> success(T data, String requestId){
         RpcResponse<T> response = new RpcResponse<T>();
         response.setStatusCode(ResponseCode.SUCCESS.getCode());
         response.setData(data);
+        response.setRequestId(requestId);
         return response;
     }
 
     /**
      * 失败的时候调用
      */
-    public static <T> RpcResponse<T> fail(T data){
+    public static <T> RpcResponse<T> fail(T data, String requestId){
         RpcResponse<T> response = new RpcResponse<T>();
         response.setStatusCode(ResponseCode.FAIL.getCode());
         response.setData(data);
+        response.setRequestId(requestId);
         return response;
     }
 }

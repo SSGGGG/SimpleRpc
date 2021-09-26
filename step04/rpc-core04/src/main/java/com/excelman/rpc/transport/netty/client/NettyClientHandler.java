@@ -34,9 +34,7 @@ public class NettyClientHandler extends SimpleChannelInboundHandler<RpcResponse>
         try{
             // 这里由于前面已经有解码器解码了，所以可以直接将数据读取并放到ctx中
             logger.info("客户端接收到消息：{}",rpcResponse.toString());
-            AttributeKey<Object> key = AttributeKey.valueOf("RpcResponse");
-            ctx.channel().attr(key).set(rpcResponse);
-//            ctx.channel().close();
+            UnProcessRequest.complete(rpcResponse);
         } finally {
             ReferenceCountUtil.release(rpcResponse);
         }
