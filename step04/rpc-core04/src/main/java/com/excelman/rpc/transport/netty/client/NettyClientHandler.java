@@ -2,6 +2,9 @@ package com.excelman.rpc.transport.netty.client;
 
 import com.excelman.rpc.entity.RpcRequest;
 import com.excelman.rpc.entity.RpcResponse;
+import com.excelman.rpc.serializer.CommonSerializer;
+import io.netty.channel.Channel;
+import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.handler.timeout.IdleState;
@@ -10,6 +13,8 @@ import io.netty.util.AttributeKey;
 import io.netty.util.ReferenceCountUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.net.InetSocketAddress;
 
 /**
  * @author Excelman
@@ -31,7 +36,7 @@ public class NettyClientHandler extends SimpleChannelInboundHandler<RpcResponse>
             logger.info("客户端接收到消息：{}",rpcResponse.toString());
             AttributeKey<Object> key = AttributeKey.valueOf("RpcResponse");
             ctx.channel().attr(key).set(rpcResponse);
-            ctx.channel().close();
+//            ctx.channel().close();
         } finally {
             ReferenceCountUtil.release(rpcResponse);
         }
@@ -53,7 +58,7 @@ public class NettyClientHandler extends SimpleChannelInboundHandler<RpcResponse>
     @Override
     public void userEventTriggered(ChannelHandlerContext ctx, Object evt) throws Exception {
 
-        System.out.println("test-----");
+        System.out.println("client EventTriggered-----");
 
         if(evt instanceof IdleStateEvent){
             IdleState state = ((IdleStateEvent) evt).state();
@@ -61,7 +66,9 @@ public class NettyClientHandler extends SimpleChannelInboundHandler<RpcResponse>
                 logger.info("发送心跳包到目的地：[{}]", ctx.channel().remoteAddress());
                 RpcRequest rpcRequest = new RpcRequest();
                 rpcRequest.setIsHeartBeat(true);
-                ctx.channel().writeAndFlush(rpcRequest);
+//                Channel channel = ChannelProvider.getChannel((InetSocketAddress) ctx.channel().remoteAddress(), CommonSerializer.getByCode(CommonSerializer.KRYO_SERIALIZER));
+//                channel.writeAndFlush(rpcRequest).addListener(ChannelFutureListener.CLOSE_ON_FAILURE);
+                ctx.channel().writeAndFlush(rpcRequest).addListener(ChannelFutureListener.CLOSE_ON_FAILURE);
             }
         }else{
             super.userEventTriggered(ctx, evt);

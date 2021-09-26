@@ -34,7 +34,7 @@ public class NettyServer extends AbstractRpcServer {
     private static final Logger logger = LoggerFactory.getLogger(NettyServer.class);
 
     public NettyServer(String host, int port){
-        this(host, port, CommonSerializer.getByCode(CommonSerializer.DEFAULT_SERIALIZER));
+        this(host, port, CommonSerializer.getByCode(CommonSerializer.KRYO_SERIALIZER));
     }
     public NettyServer(String host, int port, CommonSerializer serializer){
         this.host = host;
@@ -74,7 +74,7 @@ public class NettyServer extends AbstractRpcServer {
                         protected void initChannel(SocketChannel socketChannel) throws Exception {
                             ChannelPipeline pipeline = socketChannel.pipeline();
                             // IdleStateHandler属于Inbound类型，用于心跳检测，第一个参数表示隔多久检查读事件是否发生，第二个参数表示隔多久检查一下写事件是否发生，第三个参数表示隔多久检查读写事件；
-                            pipeline.addLast(new IdleStateHandler(1, 0, 0, TimeUnit.SECONDS))
+                            pipeline.addLast(new IdleStateHandler(5, 0, 0, TimeUnit.SECONDS))
                                     .addLast(new CommonEncoder(serializer)) // out类型
                                     .addLast(new CommonDecoder())   // In类型
                                     .addLast(new NettyServerHandler()); // In类型
@@ -87,6 +87,8 @@ public class NettyServer extends AbstractRpcServer {
         } catch (InterruptedException e) {
             logger.info("NettyServer在启动的时候发生异常：{}",e);
         } finally {
+            // finally 资源优雅释放
+            logger.info("Release netty server resources");
             bossGroup.shutdownGracefully();
             workerGroup.shutdownGracefully();
         }

@@ -2,6 +2,7 @@ package com.excelman.clientTest;
 
 import com.excelman.rpc.HelloObject;
 import com.excelman.rpc.HelloService;
+import com.excelman.rpc.serializer.CommonSerializer;
 import com.excelman.rpc.transport.RpcClient;
 import com.excelman.rpc.transport.RpcClientProxy;
 import com.excelman.rpc.transport.netty.client.NettyClient;
@@ -13,9 +14,11 @@ import com.excelman.rpc.transport.netty.client.NettyClient;
  */
 public class NettyClientTest {
 
+    // NOW: client select kryo serializer
+
     public static void main(String[] args) throws InterruptedException {
         // 1. create RpcClient
-        RpcClient rpcClient = new NettyClient();
+        RpcClient rpcClient = new NettyClient(CommonSerializer.getByCode(CommonSerializer.KRYO_SERIALIZER));
 
         // 2. create ClientProxy, and then create Service(HelloService)
         RpcClientProxy rpcClientProxy = new RpcClientProxy(rpcClient);
@@ -26,7 +29,7 @@ public class NettyClientTest {
             String result = proxy.hello(new HelloObject(1, "TestNacosRegistry"));
             System.out.println("返回结果：" + result);
 
-            Thread.sleep(3000);
+            Thread.sleep(1000);
 
         }
     }

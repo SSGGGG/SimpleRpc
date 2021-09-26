@@ -61,9 +61,9 @@ public class ChannelProvider {
             @Override
             protected void initChannel(SocketChannel ch) throws Exception {
                 ChannelPipeline pipeline = ch.pipeline();
-                pipeline.addLast(new IdleStateHandler(0, 2, 0, TimeUnit.SECONDS))
+                pipeline.addLast(new CommonEncoder(serializer))
+                        .addLast(new IdleStateHandler(0, 2, 0, TimeUnit.SECONDS))
                         .addLast(new CommonDecoder())
-                        .addLast(new CommonEncoder(serializer))
                         .addLast(new NettyClientHandler());
             }
         });
@@ -85,7 +85,7 @@ public class ChannelProvider {
      */
     private static Channel connect(InetSocketAddress address) throws ExecutionException, InterruptedException {
         CompletableFuture<Channel> completableFuture = new CompletableFuture<>();
-        bootstrap.connect(address.getHostName(), address.getPort()).addListener((ChannelFutureListener) future -> {
+        bootstrap.connect(address).addListener((ChannelFutureListener) future -> {
             if(future.isSuccess()){
                 logger.info("client connect success!!!");
                 completableFuture.complete(future.channel());

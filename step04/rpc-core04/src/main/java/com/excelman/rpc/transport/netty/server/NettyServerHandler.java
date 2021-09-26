@@ -31,6 +31,7 @@ public class NettyServerHandler extends SimpleChannelInboundHandler<RpcRequest> 
     private static ServiceProvider serviceProvider;
 
     static{
+        // TODO change to singleton factory
         requestHandler = new RequestHandler();
         serviceProvider = new DefaultServiceProvider();
     }
@@ -50,9 +51,13 @@ public class NettyServerHandler extends SimpleChannelInboundHandler<RpcRequest> 
             logger.info("服务端接收到消息:{}",rpcRequest);
             Object service = serviceProvider.getServiceProvider(rpcRequest.getInterfaceName());
             Object result = requestHandler.handle(rpcRequest, service);
-
-            ChannelFuture future = ctx.writeAndFlush(RpcResponse.success(result));
-            future.addListener(ChannelFutureListener.CLOSE);
+            if(ctx.channel().isActive() && ctx.channel().isWritable()){
+                logger.info("RpcResponse.success({})", result);
+                ctx.writeAndFlush(RpcResponse.success(result));
+            }else{
+                logger.error("Current channel can not write anything!!!");
+            }
+            // future.addListener(ChannelFutureListener.CLOSE);
         } finally {
             // 减小引用数
             ReferenceCountUtil.release(rpcRequest);
@@ -73,6 +78,9 @@ public class NettyServerHandler extends SimpleChannelInboundHandler<RpcRequest> 
      */
     @Override
     public void userEventTriggered(ChannelHandlerContext ctx, Object evt) throws Exception {
+
+        System.out.println("server EventTriggered-----");
+
         if(evt instanceof IdleStateEvent){
             IdleState state = ((IdleStateEvent) evt).state();
             if(state == IdleState.READER_IDLE){
@@ -94,7 +102,6 @@ class RequestHandler {
 
     /**
      * 执行反射方法，返回结果
-     * @param service 具体服务类
      * @return
      */
     public Object handle(RpcRequest rpcRequest, Object service){

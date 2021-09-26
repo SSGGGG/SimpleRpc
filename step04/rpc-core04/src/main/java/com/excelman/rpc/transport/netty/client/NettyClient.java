@@ -35,13 +35,16 @@ public class NettyClient implements RpcClient {
     public NettyClient(){
         this(null, null);
     }
+    public NettyClient(CommonSerializer serializer){
+        this(null, serializer);
+    }
     public NettyClient(LoadBalancer loadBalancer, CommonSerializer serializer){
         if(null == loadBalancer){
             loadBalancer = new RandomLoadBalancer();
         }
         this.serviceRegistry = new NacosServiceRegistry(loadBalancer);
         if(null == serializer){
-            this.serializer = CommonSerializer.getByCode(CommonSerializer.DEFAULT_SERIALIZER);
+            this.serializer = CommonSerializer.getByCode(CommonSerializer.KRYO_SERIALIZER);
         }else{
             this.serializer = serializer;
         }
@@ -54,7 +57,7 @@ public class NettyClient implements RpcClient {
      */
     @Override
     public Object sendRequest(RpcRequest rpcRequest) {
-        try{
+        try {
             /* 从RpcRequest中获取调用接口，从nacos注册器中获取该接口对应的InetSocket地址 */
             String interfaceName = rpcRequest.getInterfaceName();
             InetSocketAddress inetSocketAddress = serviceRegistry.lookupService(interfaceName);
@@ -62,18 +65,24 @@ public class NettyClient implements RpcClient {
             Channel channel = ChannelProvider.getChannel(inetSocketAddress, serializer);
             // 写入rpcRequest
             channel.writeAndFlush(rpcRequest).addListener(future1 -> {
-                if(future1.isSuccess()){
+                if (future1.isSuccess()) {
                     logger.info(String.format("客户端发送消息:%s", rpcRequest.toString()));
-                }else{
+                } else {
                     logger.error("客户端发送消息失败:", future1.cause());
                     throw new RpcException(RpcError.NETTY_SEND_MESSAGE_ERROR);
                 }
             });
+
+            // here is a problem, if choose to closeFuture().sync(), which means it will wait closeFuture
+
             channel.closeFuture().sync(); // 这里阻塞等待channel关闭，再执行后续操作（因此NettyClientHandler先将rpcResponse方法哦channel.attr中）
             AttributeKey<RpcResponse> key = AttributeKey.valueOf("RpcResponse");
             RpcResponse rpcResponse = channel.attr(key).get();
+
+            System.out.println("response.getData():" + rpcResponse.getData());
+
             return rpcResponse.getData();
-        } catch (InterruptedException e) {
+        } catch (InterruptedException e){
             logger.error("NettyClient发送请求的时候发生异常：{}",e);
         }
         return null;
