@@ -49,7 +49,6 @@ public class DefaultServiceRegistry implements ServiceRegistry{
     }
 
     /**
-     * TODO 万一一个接口有多个实现类呢？get的结果就是多个service实现类了？
      * 根据服务接口名，获取实现的服务
      * @param serviceName 服务接口名
      * @return

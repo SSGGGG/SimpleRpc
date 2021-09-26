@@ -36,6 +36,7 @@ public class NettyClientHandler extends SimpleChannelInboundHandler<RpcResponse>
             logger.info("客户端接收到消息：{}",rpcResponse.toString());
             UnProcessRequest.complete(rpcResponse);
         } finally {
+            // release resource
             ReferenceCountUtil.release(rpcResponse);
         }
     }

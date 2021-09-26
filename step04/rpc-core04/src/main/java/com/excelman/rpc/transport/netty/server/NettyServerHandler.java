@@ -31,8 +31,7 @@ public class NettyServerHandler extends SimpleChannelInboundHandler<RpcRequest> 
     private static ServiceProvider serviceProvider;
 
     static{
-        // TODO change to singleton factory
-        requestHandler = new RequestHandler();
+        requestHandler = RequestHandler.getInstance();
         serviceProvider = new DefaultServiceProvider();
     }
 
@@ -59,7 +58,7 @@ public class NettyServerHandler extends SimpleChannelInboundHandler<RpcRequest> 
             }
             // future.addListener(ChannelFutureListener.CLOSE);
         } finally {
-            // 减小引用数
+            // release resource
             ReferenceCountUtil.release(rpcRequest);
         }
     }
@@ -99,6 +98,19 @@ public class NettyServerHandler extends SimpleChannelInboundHandler<RpcRequest> 
  * @description 处理请求的具体实现类，职责：反射调用指定的类.方法()，并返回结果
  */
 class RequestHandler {
+
+    private static volatile RequestHandler handler;
+
+    public static RequestHandler getInstance(){
+        if(handler == null){
+            synchronized (RequestHandler.class){
+                if(handler == null){
+                    handler = new RequestHandler();
+                }
+            }
+        }
+        return handler;
+    }
 
     /**
      * 执行反射方法，返回结果
