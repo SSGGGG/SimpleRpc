@@ -17,7 +17,6 @@
         <module>rpc-core04</module>
         <module>rpc-server04</module>
         <module>ClientTest04</module>
-        <module>ServerTest04</module>
     </modules>
 
     <properties>
